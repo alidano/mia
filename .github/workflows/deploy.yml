@@ -1,0 +1,45 @@
+# ============================================================
+# GitHub Actions — Auto-deploy to EC2 on push to main
+# ============================================================
+# Required GitHub Secrets:
+#   EC2_HOST          — Your EC2 public IP or domain
+#   EC2_USER          — SSH user (usually 'ubuntu')
+#   EC2_SSH_KEY       — Private SSH key (PEM format)
+#   TELNYX_API_KEY    — (set on server .env, not in workflow)
+# ============================================================
+
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/voiceai-hub
+
+            # Pull latest code
+            git pull origin main
+
+            # Install dependencies
+            npm ci --production
+
+            # Restart the service
+            pm2 restart voiceai-hub || pm2 start src/server.js --name voiceai-hub
+
+            # Save PM2 process list
+            pm2 save
+
+            echo "✅ Deploy complete!"
