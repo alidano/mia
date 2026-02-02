@@ -54,7 +54,10 @@ router.post('/voice', async (req, res) => {
               body: JSON.stringify({}),
             }
           );
-          await ansRes.json();
+          const ansData = await ansRes.json();
+          if (!ansRes.ok) {
+            console.error(`❌ Answer failed (${ansRes.status}):`, JSON.stringify(ansData));
+          }
         }
         break;
       }
