@@ -11,33 +11,6 @@ export async function startAIAssistant(callControlId) {
       assistant: {
         id: config.ai.assistantId,
       },
-      tools: [
-        {
-          type: 'webhook',
-          function: {
-            name: 'send_info_sms',
-            description: 'Envía un mensaje de texto SMS al cliente con un enlace relevante. Usa esta herramienta cuando el cliente pregunte por ubicación, citas, productos, pérdida de peso o precios.',
-            parameters: {
-              type: 'object',
-              properties: {
-                message_type: {
-                  type: 'string',
-                  enum: ['location', 'appointment', 'weight_loss', 'prices', 'product'],
-                  description: 'Tipo de información a enviar por SMS',
-                },
-                custom_text: {
-                  type: 'string',
-                  description: 'Texto adicional opcional para incluir en el SMS',
-                },
-              },
-              required: ['message_type'],
-            },
-          },
-          webhook: {
-            url: `${config.baseUrl}/webhooks/tools/send-sms`,
-          },
-        },
-      ],
     };
 
     const response = await fetch(
